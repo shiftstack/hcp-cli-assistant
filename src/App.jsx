@@ -1,5 +1,4 @@
 import './App.css'
-import React, { useState } from "react";
 
 export default function HcpCliAssistant() {
   const steps = [
@@ -25,7 +24,7 @@ export default function HcpCliAssistant() {
     externalNetworkId: "",
     ingressFloatingIp: "",
     nodeFlavor: "",
-    nodeAZ: "",
+    nodeAZ: "",eaeae
     nodeImageName: "",
     dnsNameservers: "",
     additionalPorts: "",
@@ -147,10 +146,10 @@ export default function HcpCliAssistant() {
     }
   };
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
-
+aefea
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Hypershift on OpenStack CLI assistant</h1>
+      <h1 className="text-2xl font-bold mb-4">HCP CLI Assistant</h1>
       <h2 className="text-lg font-semibold">Step {step + 1}: {steps[step]}</h2>
 
       {step === 4 ? (

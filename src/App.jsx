@@ -11,6 +11,7 @@ export default function HcpCliAssistant() {
   ];
 
   const [step, setStep] = useState(0);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
     name: "",
     baseDomain: "",
@@ -89,6 +90,12 @@ export default function HcpCliAssistant() {
     return cmd;
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generateCommand());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const nextStep = () => {
     if (isStepValid()) {
       setStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -105,7 +112,12 @@ export default function HcpCliAssistant() {
         <div className="mt-6 p-4 border rounded">
           <h2 className="text-lg font-bold">Generated Command:</h2>
           <pre className="p-2 bg-black text-white border rounded whitespace-pre-wrap">{generateCommand()}</pre>
-          <button className="mt-2 p-2 bg-blue-500 text-white rounded" onClick={() => navigator.clipboard.writeText(generateCommand())}>Copy Command</button>
+          <button
+            className={`mt-2 p-2 rounded text-white`}
+            onClick={handleCopy}
+          >
+            {copied ? "Copied!" : "Copy Command"}
+          </button>
         </div>
       ) : (
         <div className="space-y-4">

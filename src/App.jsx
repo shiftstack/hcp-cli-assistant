@@ -25,6 +25,7 @@ export default function HcpCliAssistant() {
     externalNetworkId: "",
     ingressFloatingIp: "",
     nodeFlavor: "",
+    nodeAZ: "",
     dnsNameservers: "",
   });
 
@@ -85,6 +86,11 @@ export default function HcpCliAssistant() {
       --openstack-dns-nameservers ${form.dnsNameservers}`;
     }
 
+    if (form.nodeAZ) {
+      cmd += ` \
+      --openstack-node-availability-zone ${form.nodeAZ}`;
+    }
+
     cmd = cmd.replace(/\s+/g, ' ').trim();
 
     return cmd;
@@ -124,7 +130,7 @@ export default function HcpCliAssistant() {
           {step === 0 && <><input type="text" name="name" placeholder="Cluster Name" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="baseDomain" placeholder="Base Domain" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
           {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" required />}</>}
           {step === 2 && <><input type="text" name="externalNetworkId" placeholder="External Network ID" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="ingressFloatingIp" placeholder="Ingress Floating IP" value={form.ingressFloatingIp} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="dnsNameservers" placeholder="DNS Nameservers (comma-separated)" value={form.dnsNameservers} onChange={handleChange} className="w-full p-2 border rounded" /></>}
-          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="Node Flavor" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
+          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="Node Flavor" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Node Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /></>}
         </div>
       )}
 

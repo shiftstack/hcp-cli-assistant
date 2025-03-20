@@ -28,6 +28,7 @@ export default function HcpCliAssistant() {
     nodeAZ: "",
     nodeImageName: "",
     dnsNameservers: "",
+    additionalPorts: "",
   });
 
   const handleChange = (e) => {
@@ -44,6 +45,16 @@ export default function HcpCliAssistant() {
         return form.name.trim() !== "" && form.baseDomain.trim() !== "" && form.nodePoolReplicas.trim() !== "";
       case 1:
         return form.osCloudSet || form.openstackCredentialsFile.trim() !== "";
+      case 2:
+        if (form.additionalPorts) {
+          try {
+            const ports = JSON.parse(form.additionalPorts);
+            return ports.every((port) => port.networkId.trim() !== "");
+          } catch (e) {
+            return false;
+          }
+        }
+        return true;
       case 3:
         return form.nodeFlavor.trim() !== "";
       default:
@@ -97,6 +108,28 @@ export default function HcpCliAssistant() {
       --openstack-node-image-name ${form.nodeImageName}`;
     }
 
+    if (form.additionalPorts) {
+      const ports = JSON.parse(form.additionalPorts);
+      ports.forEach((port, index) => {
+      let portConfig = `--openstack-node-additional-port=network-id:${port.networkId}`;
+      
+      if (port.vnicType) {
+        portConfig += `,vnic-type:${port.vnicType}`;
+      }
+      
+      if (port.addressPairs) {
+        portConfig += `,address-pairs:${port.addressPairs}`;
+      }
+      
+      if (port.disablePortSecurity) {
+        portConfig += `,disable-port-security:true`;
+      }
+      
+      cmd += ` \
+      ${portConfig}`;
+      });
+    }
+
     cmd = cmd.replace(/\s+/g, ' ').trim();
 
     return cmd;
@@ -133,16 +166,129 @@ export default function HcpCliAssistant() {
         </div>
       ) : (
         <div className="space-y-4">
-          {step === 0 && <><input type="text" name="name" placeholder="Cluster Name" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="baseDomain" placeholder="Base Domain" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
+          {step === 0 && <><input type="text" name="name" placeholder="Cluster Name (required). Example: test" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="baseDomain" placeholder="Base Domain (required). Example: mydomain.com" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas (required)" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
           {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && (
             <>
-              <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional)" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File (optional). Example: /tmp/clouds.yaml" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" />
             </>
           )}
-          <input type="text" name="openstackCloud" placeholder="OpenStack Cloud (default: openstack)" value={form.openstackCloud} onChange={handleChange} className="w-full p-2 border rounded" />
-          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional)" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
-          {step === 2 && <><input type="text" name="externalNetworkId" placeholder="External Network ID" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="ingressFloatingIp" placeholder="Ingress Floating IP" value={form.ingressFloatingIp} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="dnsNameservers" placeholder="DNS Nameservers (comma-separated)" value={form.dnsNameservers} onChange={handleChange} className="w-full p-2 border rounded" /></>}
-          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="OpenStack Flavor name for the Nodepool" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Nova Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="nodeImageName" placeholder="OpenStack Glance Image Name (optional)" value={form.nodeImageName} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          <input type="text" name="openstackCloud" placeholder="OpenStack Cloud (optional). Default: openstack" value={form.openstackCloud} onChange={handleChange} className="w-full p-2 border rounded" />
+          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional). Example: /tmp/ca.cert" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          {step === 2 && (
+            <>
+              <input type="text" name="externalNetworkId" placeholder="External Network ID (optional). Example: 64f629fd-f75b-4e66-96ad-94f6f2125ba4" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input type="text" name="ingressFloatingIp" placeholder="Ingress Floating IP (optional). Example: 192.168.100.7" value={form.ingressFloatingIp} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input type="text" name="dnsNameservers" placeholder="DNS Nameservers (optional). Example: 1.1.1.1,8.8.8.8" value={form.dnsNameservers} onChange={handleChange} className="w-full p-2 border rounded" />
+              
+              <div className="mt-4">
+                <h3 className="font-semibold mb-2">Additional Nodepool Ports (optional)</h3>
+                {form.additionalPorts && JSON.parse(form.additionalPorts).map((port, index) => (
+                  <div key={index} className="p-3 border rounded mb-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">Port {index + 1}</span>
+                      <button 
+                        onClick={() => {
+                          const ports = JSON.parse(form.additionalPorts);
+                          ports.splice(index, 1);
+                          setForm({
+                            ...form,
+                            additionalPorts: JSON.stringify(ports)
+                          });
+                        }}
+                        className="px-2 py-1 bg-red-500 text-white rounded"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm">Network ID (required)</label>
+                        <input 
+                          type="text" 
+                          value={port.networkId || ""} 
+                          onChange={(e) => {
+                            const ports = JSON.parse(form.additionalPorts);
+                            ports[index].networkId = e.target.value;
+                            setForm({
+                              ...form,
+                              additionalPorts: JSON.stringify(ports)
+                            });
+                          }}
+                          className="w-full p-2 border rounded"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm">VNIC Type (optional)</label>
+                        <input 
+                          type="text" 
+                          value={port.vnicType || ""} 
+                          onChange={(e) => {
+                            const ports = JSON.parse(form.additionalPorts);
+                            ports[index].vnicType = e.target.value;
+                            setForm({
+                              ...form,
+                              additionalPorts: JSON.stringify(ports)
+                            });
+                          }}
+                          className="w-full p-2 border rounded"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm">Address Pairs (optional)</label>
+                        <input 
+                          type="text" 
+                          value={port.addressPairs || ""} 
+                          onChange={(e) => {
+                            const ports = JSON.parse(form.additionalPorts);
+                            ports[index].addressPairs = e.target.value;
+                            setForm({
+                              ...form,
+                              additionalPorts: JSON.stringify(ports)
+                            });
+                          }}
+                          className="w-full p-2 border rounded"
+                          placeholder="ip_address=mac_address,ip_address=mac_address"
+                        />
+                      </div>
+                      <div className="flex items-center">
+                        <label className="flex items-center text-sm">
+                          <input 
+                            type="checkbox" 
+                            checked={port.disablePortSecurity || false} 
+                            onChange={(e) => {
+                              const ports = JSON.parse(form.additionalPorts);
+                              ports[index].disablePortSecurity = e.target.checked;
+                              setForm({
+                                ...form,
+                                additionalPorts: JSON.stringify(ports)
+                              });
+                            }}
+                            className="mr-2"
+                          />
+                          Disable Port Security
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => {
+                    const ports = form.additionalPorts ? JSON.parse(form.additionalPorts) : [];
+                    ports.push({ networkId: "" });
+                    setForm({
+                      ...form,
+                      additionalPorts: JSON.stringify(ports)
+                    });
+                  }}
+                  className="mt-2 px-3 py-2 bg-green-500 text-white rounded"
+                >
+                  Add Port
+                </button>
+              </div>
+            </>
+          )}
+          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="Flavor name for the Nodepool (Required)" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Nova Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="nodeImageName" placeholder="Glance Image Name (optional)" value={form.nodeImageName} onChange={handleChange} className="w-full p-2 border rounded" /></>}
         </div>
       )}
 

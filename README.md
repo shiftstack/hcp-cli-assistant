@@ -1,4 +1,4 @@
-# HCP CLI Assistant
+# Hypershif ton OpenStack CLI Assistant
 
 Click [here](https://shiftstack.github.io/hcp-cli-assistant/) to open the assistant.
 
@@ -13,7 +13,7 @@ The assistant guides users step-by-step through required and optional configurat
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/YOUR_GITHUB_USERNAME/hcp-cli-assistant.git
+git clone https://github.com/shiftstack/hcp-cli-assistant.git
 cd hcp-cli-assistant
 ```
 

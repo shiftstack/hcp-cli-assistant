@@ -1,12 +1,52 @@
-# React + Vite
+# HCP CLI Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Click [here](https://shiftstack.github.io/hcp-cli-assistant/) to open the assistant.
 
-Currently, two official plugins are available:
+An interactive web UI wizard that helps users generate the correct `hcp create cluster openstack` command for deploying **HyperShift on OpenStack**.
+The assistant guides users step-by-step through required and optional configurations, ensuring a smooth setup experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- Step-by-step wizard for easy input
+- Copy-to-clipboard functionality
 
-## Expanding the ESLint configuration
+## Setup & Development
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. Clone the Repository
+```sh
+git clone https://github.com/YOUR_GITHUB_USERNAME/hcp-cli-assistant.git
+cd hcp-cli-assistant
+```
+
+### 2. Install Dependencies
+```sh
+npm install
+```
+
+### 3. Run Locally
+```sh
+npm run dev
+```
+Visit `http://localhost:5173/` in your browser.
+
+### 4. Build for Production
+```sh
+npm run build
+```
+
+### 5. Deploy to GitHub Pages
+The project is automatically deployed via **GitHub Actions**, but you can also deploy manually:
+```sh
+npm run deploy
+```
+
+## Access the Live App
+```
+https://shiftstack.github.io/hcp-cli-assistant/
+```
+
+## License
+This project is open-source and available under the **Apache 2.0 License**.
+
+---
+
+Developed for HyperShift on OpenStack users.

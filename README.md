@@ -39,11 +39,6 @@ The project is automatically deployed via **GitHub Actions**, but you can also d
 npm run deploy
 ```
 
-## Access the Live App
-```
-https://shiftstack.github.io/hcp-cli-assistant/
-```
-
 ## License
 This project is open-source and available under the **Apache 2.0 License**.
 

@@ -42,7 +42,7 @@ export default function HcpCliAssistant() {
   const isStepValid = () => {
     switch (step) {
       case 0:
-        return form.name.trim() !== "" && form.baseDomain.trim() !== "" && form.nodePoolReplicas.trim() !== "";
+        return form.name.trim() !== "" && form.baseDomain.trim() !== "" && form.nodePoolReplicas.trim() !== "" && form.pullSecret.trim() !== "" && form.sshKey.trim() !== "";
       case 1:
         return form.osCloudSet || form.openstackCredentialsFile.trim() !== "";
       case 2:
@@ -150,7 +150,7 @@ export default function HcpCliAssistant() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">HCP CLI Assistant</h1>
+      <h1 className="text-2xl font-bold mb-4">Hypershift on OpenStack CLI assistant</h1>
       <h2 className="text-lg font-semibold">Step {step + 1}: {steps[step]}</h2>
 
       {step === 4 ? (
@@ -166,14 +166,20 @@ export default function HcpCliAssistant() {
         </div>
       ) : (
         <div className="space-y-4">
-          {step === 0 && <><input type="text" name="name" placeholder="Cluster Name (required). Example: test" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="baseDomain" placeholder="Base Domain (required). Example: mydomain.com" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas (required)" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
+          {step === 0 && <>
+            <input type="text" name="name" placeholder="Cluster Name (required). Example: test" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <input type="text" name="baseDomain" placeholder="Base Domain (required). Example: mydomain.com" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas (required)" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <input type="text" name="pullSecret" placeholder="Pull Secret path (required). Example: /path/to/pull-secret" value={form.pullSecret} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <input type="text" name="sshKey" placeholder="SSH Key path (required). Example: /path/to/id_rsa.pub" value={form.sshKey} onChange={handleChange} className="w-full p-2 border rounded" required />
+          </>}
           {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && (
             <>
-              <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File (optional). Example: /tmp/clouds.yaml" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File (optional). Example: /path/to/clouds.yaml" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" />
             </>
           )}
           <input type="text" name="openstackCloud" placeholder="OpenStack Cloud (optional). Default: openstack" value={form.openstackCloud} onChange={handleChange} className="w-full p-2 border rounded" />
-          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional). Example: /tmp/ca.cert" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional). Example: /path/to/ca.cert" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
           {step === 2 && (
             <>
               <input type="text" name="externalNetworkId" placeholder="External Network ID (optional). Example: 64f629fd-f75b-4e66-96ad-94f6f2125ba4" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" />

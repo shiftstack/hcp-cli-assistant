@@ -21,11 +21,12 @@ export default function HcpCliAssistant() {
     osCloudSet: true,
     openstackCredentialsFile: "",
     openstackCaCertFile: "",
-    openstackCloud: "openstack",
+    openstackCloud: "",
     externalNetworkId: "",
     ingressFloatingIp: "",
     nodeFlavor: "",
     nodeAZ: "",
+    nodeImageName: "",
     dnsNameservers: "",
   });
 
@@ -66,7 +67,7 @@ export default function HcpCliAssistant() {
       cmd += ` \
       --openstack-ca-cert-file ${form.openstackCaCertFile}`;
     }
-    if (form.openstackCloud !== "openstack") {
+    if (form.openstackCloud) {
       cmd += ` \
       --openstack-cloud ${form.openstackCloud}`;
     }
@@ -89,6 +90,11 @@ export default function HcpCliAssistant() {
     if (form.nodeAZ) {
       cmd += ` \
       --openstack-node-availability-zone ${form.nodeAZ}`;
+    }
+
+    if (form.nodeImageName) {
+      cmd += ` \
+      --openstack-node-image-name ${form.nodeImageName}`;
     }
 
     cmd = cmd.replace(/\s+/g, ' ').trim();
@@ -128,9 +134,15 @@ export default function HcpCliAssistant() {
       ) : (
         <div className="space-y-4">
           {step === 0 && <><input type="text" name="name" placeholder="Cluster Name" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="baseDomain" placeholder="Base Domain" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required /></>}
-          {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" required />}</>}
+          {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && (
+            <>
+              <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional)" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" />
+            </>
+          )}
+          <input type="text" name="openstackCloud" placeholder="OpenStack Cloud (default: openstack)" value={form.openstackCloud} onChange={handleChange} className="w-full p-2 border rounded" />
+          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional)" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
           {step === 2 && <><input type="text" name="externalNetworkId" placeholder="External Network ID" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="ingressFloatingIp" placeholder="Ingress Floating IP" value={form.ingressFloatingIp} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="dnsNameservers" placeholder="DNS Nameservers (comma-separated)" value={form.dnsNameservers} onChange={handleChange} className="w-full p-2 border rounded" /></>}
-          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="Node Flavor" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Node Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="OpenStack Flavor name for the Nodepool" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Nova Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="nodeImageName" placeholder="OpenStack Glance Image Name (optional)" value={form.nodeImageName} onChange={handleChange} className="w-full p-2 border rounded" /></>}
         </div>
       )}
 

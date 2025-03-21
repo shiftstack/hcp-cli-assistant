@@ -1,6 +1,41 @@
 import './App.css'
 import React, { useState } from "react";
 
+// Reusable input with tooltip component
+const InputWithTooltip = ({ type, name, placeholder, value, onChange, required, tooltip, className = "" }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  return (
+    <div className="relative w-full mb-3">
+      <div className="flex items-center">
+        <input 
+          type={type || "text"} 
+          name={name} 
+          placeholder={placeholder} 
+          value={value} 
+          onChange={onChange} 
+          className={`w-full p-2 border rounded ${className}`}
+          required={required} 
+        />
+        <div 
+          className="ml-2 text-gray-500 cursor-help" 
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+          </svg>
+        </div>
+      </div>
+      {showTooltip && (
+        <div className="absolute right-0 z-10 p-2 mt-1 text-sm bg-gray-800 text-white rounded shadow-lg w-64">
+          {tooltip}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function HcpCliAssistant() {
   const steps = [
     "Cluster Details",
@@ -167,27 +202,143 @@ export default function HcpCliAssistant() {
       ) : (
         <div className="space-y-4">
           {step === 0 && <>
-            <input type="text" name="name" placeholder="Cluster Name (required). Example: test" value={form.name} onChange={handleChange} className="w-full p-2 border rounded" required />
-            <input type="text" name="baseDomain" placeholder="Base Domain (required). Example: mydomain.com" value={form.baseDomain} onChange={handleChange} className="w-full p-2 border rounded" required />
-            <input type="number" name="nodePoolReplicas" placeholder="Node Pool Replicas (required)" value={form.nodePoolReplicas} onChange={handleChange} className="w-full p-2 border rounded" required />
-            <input type="text" name="pullSecret" placeholder="Pull Secret path (required). Example: /path/to/pull-secret" value={form.pullSecret} onChange={handleChange} className="w-full p-2 border rounded" required />
-            <input type="text" name="sshKey" placeholder="SSH Key path (required). Example: /path/to/id_rsa.pub" value={form.sshKey} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <InputWithTooltip 
+              name="name" 
+              placeholder="Cluster Name (required). Example: test" 
+              value={form.name} 
+              onChange={handleChange} 
+              required
+              tooltip="A unique name for your HyperShift cluster. This will be used to identify your cluster in the HyperShift control plane."
+            />
+            <InputWithTooltip 
+              name="baseDomain" 
+              placeholder="Base Domain (required). Example: mydomain.com" 
+              value={form.baseDomain} 
+              onChange={handleChange} 
+              required
+              tooltip="The base domain of your cluster. This domain will be used to create DNS records for your cluster."
+            />
+            <InputWithTooltip 
+              type="number" 
+              name="nodePoolReplicas" 
+              placeholder="Node Pool Replicas (required)" 
+              value={form.nodePoolReplicas} 
+              onChange={handleChange} 
+              required
+              tooltip="The number of worker nodes to create in your cluster's default node pool."
+            />
+            <InputWithTooltip 
+              name="pullSecret" 
+              placeholder="Pull Secret path (required). Example: /path/to/pull-secret" 
+              value={form.pullSecret} 
+              onChange={handleChange} 
+              required
+              tooltip="Path to the pull secret file. This is required to pull container images from the Red Hat registry."
+            />
+            <InputWithTooltip 
+              name="sshKey" 
+              placeholder="SSH Key path (required). Example: /path/to/id_rsa.pub" 
+              value={form.sshKey} 
+              onChange={handleChange} 
+              required
+              tooltip="Path to your SSH public key file. This key will be added to the authorized_keys on all nodes."
+            />
           </>}
-          {step === 1 && <><label className="block"><input type="checkbox" name="osCloudSet" checked={form.osCloudSet} onChange={handleChange} className="mr-2" />OS_CLOUD is set in the environment</label>{!form.osCloudSet && (
-            <>
-              <input type="text" name="openstackCredentialsFile" placeholder="OpenStack Credentials File (optional). Example: /path/to/clouds.yaml" value={form.openstackCredentialsFile} onChange={handleChange} className="w-full p-2 border rounded" />
-            </>
-          )}
-          <input type="text" name="openstackCloud" placeholder="OpenStack Cloud (optional). Default: openstack" value={form.openstackCloud} onChange={handleChange} className="w-full p-2 border rounded" />
-          <input type="text" name="openstackCaCertFile" placeholder="OpenStack CA Certificate File (optional). Example: /path/to/ca.cert" value={form.openstackCaCertFile} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          {step === 1 && <>
+            <label className="block">
+              <input 
+                type="checkbox" 
+                name="osCloudSet" 
+                checked={form.osCloudSet} 
+                onChange={handleChange} 
+                className="mr-2" 
+              />
+              OS_CLOUD is set in the environment
+              <span 
+                className="ml-2 text-gray-500 cursor-help relative inline-block"
+                onMouseEnter={(e) => e.target.querySelector('div').style.display = 'block'}
+                onMouseLeave={(e) => e.target.querySelector('div').style.display = 'none'}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                <div className="absolute right-0 z-10 p-2 mt-1 text-sm bg-gray-800 text-white rounded shadow-lg w-64" style={{display: 'none'}}>
+                  Check this if you have the OS_CLOUD environment variable set. Otherwise, you'll need to provide a credentials file.
+                </div>
+              </span>
+            </label>
+            
+            {!form.osCloudSet && (
+              <InputWithTooltip 
+                name="openstackCredentialsFile" 
+                placeholder="OpenStack Credentials File (optional). Example: /path/to/clouds.yaml" 
+                value={form.openstackCredentialsFile} 
+                onChange={handleChange}
+                tooltip="Path to your OpenStack clouds.yaml file containing your authentication credentials."
+              />
+            )}
+            
+            <InputWithTooltip 
+              name="openstackCloud" 
+              placeholder="OpenStack Cloud (optional). Default: openstack" 
+              value={form.openstackCloud} 
+              onChange={handleChange}
+              tooltip="The named cloud to use from your clouds.yaml file if you have multiple clouds defined."
+            />
+            
+            <InputWithTooltip 
+              name="openstackCaCertFile" 
+              placeholder="OpenStack CA Certificate File (optional). Example: /path/to/ca.cert" 
+              value={form.openstackCaCertFile} 
+              onChange={handleChange}
+              tooltip="Path to a CA certificate file if your OpenStack environment uses a self-signed certificate."
+            />
+          </>}
+          
           {step === 2 && (
             <>
-              <input type="text" name="externalNetworkId" placeholder="External Network ID (optional). Example: 64f629fd-f75b-4e66-96ad-94f6f2125ba4" value={form.externalNetworkId} onChange={handleChange} className="w-full p-2 border rounded" />
-              <input type="text" name="ingressFloatingIp" placeholder="Ingress Floating IP (optional). Example: 192.168.100.7" value={form.ingressFloatingIp} onChange={handleChange} className="w-full p-2 border rounded" />
-              <input type="text" name="dnsNameservers" placeholder="DNS Nameservers (optional). Example: 1.1.1.1,8.8.8.8" value={form.dnsNameservers} onChange={handleChange} className="w-full p-2 border rounded" />
+              <InputWithTooltip 
+                name="externalNetworkId" 
+                placeholder="External Network ID (optional). Example: 64f629fd-f75b-4e66-96ad-94f6f2125ba4" 
+                value={form.externalNetworkId} 
+                onChange={handleChange}
+                tooltip="The ID of the external network that will be used for floating IPs. If not provided, the installer will attempt to discover it."
+              />
               
+              <InputWithTooltip 
+                name="ingressFloatingIp" 
+                placeholder="Ingress Floating IP (optional). Example: 192.168.100.7" 
+                value={form.ingressFloatingIp} 
+                onChange={handleChange}
+                tooltip="A pre-allocated floating IP to use for cluster ingress. If not provided, a new floating IP will be allocated."
+              />
+              
+              <InputWithTooltip 
+                name="dnsNameservers" 
+                placeholder="DNS Nameservers (optional). Example: 1.1.1.1,8.8.8.8" 
+                value={form.dnsNameservers} 
+                onChange={handleChange}
+                tooltip="Comma-separated list of DNS nameservers to use for the cluster's subnet."
+              />
+              
+              {/* Additional ports section remains the same */}
               <div className="mt-4">
-                <h3 className="font-semibold mb-2">Additional Nodepool Ports (optional)</h3>
+                <h3 className="font-semibold mb-2">
+                  Additional Nodepool Ports (optional)
+                  <span 
+                    className="ml-2 text-gray-500 cursor-help relative inline-block"
+                    onMouseEnter={(e) => e.target.querySelector('div').style.display = 'block'}
+                    onMouseLeave={(e) => e.target.querySelector('div').style.display = 'none'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                    <div className="absolute right-0 z-10 p-2 mt-1 text-sm bg-gray-800 text-white rounded shadow-lg w-64" style={{display: 'none'}}>
+                      Configure additional network ports for the nodes in your cluster. Useful for multi-network setups or SR-IOV configurations.
+                    </div>
+                  </span>
+                </h3>
+                
                 {form.additionalPorts && JSON.parse(form.additionalPorts).map((port, index) => (
                   <div key={index} className="p-3 border rounded mb-2">
                     <div className="flex items-center justify-between mb-2">
@@ -294,7 +445,33 @@ export default function HcpCliAssistant() {
               </div>
             </>
           )}
-          {step === 3 && <><input type="text" name="nodeFlavor" placeholder="Flavor name for the Nodepool (Required)" value={form.nodeFlavor} onChange={handleChange} className="w-full p-2 border rounded" required /><input type="text" name="nodeAZ" placeholder="Nova Availability Zone (optional)" value={form.nodeAZ} onChange={handleChange} className="w-full p-2 border rounded" /><input type="text" name="nodeImageName" placeholder="Glance Image Name (optional)" value={form.nodeImageName} onChange={handleChange} className="w-full p-2 border rounded" /></>}
+          
+          {step === 3 && <>
+            <InputWithTooltip 
+              name="nodeFlavor" 
+              placeholder="Flavor name for the Nodepool (Required)" 
+              value={form.nodeFlavor} 
+              onChange={handleChange} 
+              required
+              tooltip="The OpenStack flavor (instance type) to use for the worker nodes in your cluster."
+            />
+            
+            <InputWithTooltip 
+              name="nodeAZ" 
+              placeholder="Nova Availability Zone (optional)" 
+              value={form.nodeAZ} 
+              onChange={handleChange}
+              tooltip="The availability zone where worker nodes will be created. If not specified, the default AZ will be used."
+            />
+            
+            <InputWithTooltip 
+              name="nodeImageName" 
+              placeholder="Glance Image Name (optional)" 
+              value={form.nodeImageName} 
+              onChange={handleChange}
+              tooltip="The name of the RHCOS image in Glance to use for the worker nodes. If not specified, the installer will use the latest available RHCOS image."
+            />
+          </>}
         </div>
       )}
 

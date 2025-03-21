@@ -1,4 +1,4 @@
-# Hypershif ton OpenStack CLI Assistant
+# Hypershift ton OpenStack CLI Assistant
 
 Click [here](https://shiftstack.github.io/hcp-cli-assistant/) to open the assistant.
 

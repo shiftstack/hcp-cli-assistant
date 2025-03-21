@@ -5,6 +5,8 @@ Click [here](https://shiftstack.github.io/hcp-cli-assistant/) to open the assist
 An interactive web UI wizard that helps users generate the correct `hcp create cluster openstack` command for deploying **HyperShift on OpenStack**.
 The assistant guides users step-by-step through required and optional configurations, ensuring a smooth setup experience.
 
+![UI screenshot](screenshot.png?raw=true "UI screenshot")
+
 ## Features
 - Step-by-step wizard for easy input
 - Copy-to-clipboard functionality

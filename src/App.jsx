@@ -393,18 +393,6 @@ export default function HcpCliAssistant() {
                   className="mr-2" 
                 />
                 OS_CLOUD is set in the environment
-                <span 
-                  className="ml-2 text-gray-500 cursor-help relative inline-block"
-                  onMouseEnter={(e) => e.target.querySelector('div').style.display = 'block'}
-                  onMouseLeave={(e) => e.target.querySelector('div').style.display = 'none'}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                  </svg>
-                  <div className="absolute right-0 z-10 p-2 mt-1 text-sm bg-gray-800 text-white rounded shadow-lg w-64" style={{display: 'none'}}>
-                    Check this if you have the OS_CLOUD environment variable set. Otherwise, you'll need to provide a credentials file.
-                  </div>
-                </span>
               </label>
               
               {!form.osCloudSet && (
@@ -475,7 +463,7 @@ export default function HcpCliAssistant() {
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                     </svg>
                     <div className="absolute right-0 z-10 p-2 mt-1 text-sm bg-gray-800 text-white rounded shadow-lg w-64" style={{display: 'none'}}>
-                      Configure additional network ports for the nodes in your cluster. Useful for multi-network setups or SR-IOV configurations.
+                      Attach additional ports to nodes. Params: Neutron Network ID, VNIC type, Port Security and Allowed Address Pairs.
                     </div>
                   </span>
                 </h3>

@@ -179,10 +179,11 @@ export default function HcpCliAssistant() {
               if (form.additionalPorts) {
                 try {
                   const ports = JSON.parse(form.additionalPorts);
-                  // Only validate ports that have a networkId entered
-                  const portsWithNetworkId = ports.filter(port => port.networkId && port.networkId.trim() !== "");
-                  return portsWithNetworkId.length === 0 || 
-                         portsWithNetworkId.every(port => port.networkId && port.networkId.trim() !== "");
+                  if (ports.length === 0) {
+                    return true;
+                  }
+                  // Every port must have a networkId
+                  return ports.every(port => port.networkId && port.networkId.trim() !== "");
                 } catch (e) {
                   console.error("Error parsing additionalPorts:", e);
                   return false;

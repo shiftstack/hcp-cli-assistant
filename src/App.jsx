@@ -165,8 +165,8 @@ export default function HcpCliAssistant() {
   // Platform config
   const platforms = useMemo(() => [
     { value: "openstack", label: "OpenStack" },
+    { value: "aws", label: "AWS" },
     // Future platforms can be added here
-    // { value: "aws", label: "AWS" },
     // { value: "azure", label: "Azure" },
   ], []);
 
@@ -176,6 +176,12 @@ export default function HcpCliAssistant() {
       "OpenStack Authentication",
       "OpenStack Networking",
       "OpenStack Node Configuration",
+      "Review & Generate Command"
+    ],
+    aws: [
+      "AWS Node Configuration",
+      "AWS Storage Configuration",
+      "AWS Network Configuration",
       "Review & Generate Command"
     ],
     // Add more platform steps as they become available
@@ -205,6 +211,16 @@ export default function HcpCliAssistant() {
     nodeImageName: "",
     dnsNameservers: "",
     additionalPorts: "[]", // Initialize as string to avoid JSON parsing issues
+    
+    // AWS specific fields
+    awsInstanceType: "",
+    awsInstanceProfile: "",
+    awsSubnetId: "",
+    awsSecurityGroupId: "",
+    awsRootVolumeSize: "120",
+    awsRootVolumeType: "gp3",
+    awsRootVolumeIops: "",
+    awsRootVolumeKmsKey: "",
   });
 
   // Get steps based on selected platform - memoize to prevent recalculation
@@ -333,6 +349,17 @@ export default function HcpCliAssistant() {
       }
     }
     
+    if (form.platform === "aws") {
+      const platformStep = step - 2; // Adjust for common steps
+      
+      switch (platformStep) {
+        case 0: // AWS Node Configuration
+          return form.awsInstanceType.trim() !== "" && form.awsInstanceProfile.trim() !== "";
+        default:
+          return true;
+      }
+    }
+    
     return false;
   }, [step, form, platformSteps, parsePorts]);
 
@@ -410,6 +437,55 @@ export default function HcpCliAssistant() {
         console.error("Error parsing additionalPorts during command generation:", e);
       }
 
+      cmd = cmd.replace(/\s+/g, ' ').trim();
+      return cmd;
+    }
+    
+    if (form.platform === "aws") {
+      let cmd = `hcp create cluster aws \
+        --name ${form.name} \
+        --base-domain ${form.baseDomain} \
+        --node-pool-replicas ${form.nodePoolReplicas} \
+        --pull-secret ${form.pullSecret} \
+        --ssh-key ${form.sshKey} \
+        --instance-type ${form.awsInstanceType}`;
+
+      // Add optional AWS parameters
+      if (form.awsInstanceType) {
+        cmd += ` \
+        --instance-type ${form.awsInstanceType}`;
+      }
+
+      if (form.awsInstanceProfile) {
+        cmd += ` \
+        --instance-profile ${form.awsInstanceProfile}`;
+      }
+
+      if (form.awsSubnetId) {
+        cmd += ` \
+        --subnet-id ${form.awsSubnetId}`;
+      }
+
+      if (form.awsRootVolumeSize && form.awsRootVolumeSize !== "120") {
+        cmd += ` \
+        --root-volume-size ${form.awsRootVolumeSize}`;
+      }
+      
+      if (form.awsRootVolumeType && form.awsRootVolumeType !== "gp3") {
+        cmd += ` \
+        --root-volume-type ${form.awsRootVolumeType}`;
+      }
+      
+      if (form.awsRootVolumeIops) {
+        cmd += ` \
+        --root-volume-iops ${form.awsRootVolumeIops}`;
+      }
+      
+      if (form.awsRootVolumeKmsKey) {
+        cmd += ` \
+        --root-volume-kms-key ${form.awsRootVolumeKmsKey}`;
+      }
+      
       cmd = cmd.replace(/\s+/g, ' ').trim();
       return cmd;
     }
@@ -657,6 +733,86 @@ export default function HcpCliAssistant() {
     </div>
   );
 
+  const renderAwsNodeConfigStep = () => (
+    <>
+      <InputWithTooltip 
+        name="awsInstanceType" 
+        placeholder="Instance Type (required). Example: m5.xlarge" 
+        value={form.awsInstanceType} 
+        onChange={handleChange} 
+        required
+        tooltip="The AWS EC2 instance type to use for worker nodes in your cluster."
+      />
+      
+      <InputWithTooltip 
+        name="awsInstanceProfile" 
+        placeholder="Instance Profile (required). Example: my-instance-profile" 
+        value={form.awsInstanceProfile} 
+        onChange={handleChange}
+        required
+        tooltip="The AWS IAM instance profile for the node pool. This profile must have the necessary permissions for OpenShift to operate."
+      />
+    </>
+  );
+
+  const renderAwsStorageConfigStep = () => (
+    <>
+      <InputWithTooltip 
+        name="awsRootVolumeType" 
+        placeholder="Root Volume Type. Example: gp3" 
+        value={form.awsRootVolumeType} 
+        onChange={handleChange}
+        tooltip="The EBS volume type to use for worker node root volumes. Common types: gp3, io1, io2, etc."
+      />
+      
+      <InputWithTooltip 
+        type="number"
+        name="awsRootVolumeSize" 
+        placeholder="Root Volume Size. Example: 120" 
+        value={form.awsRootVolumeSize} 
+        onChange={handleChange}
+        tooltip="The size of the root volume in GB for worker nodes."
+      />
+      
+      <InputWithTooltip 
+        type="number"
+        name="awsRootVolumeIops" 
+        placeholder="Root Volume IOPS (optional)" 
+        value={form.awsRootVolumeIops} 
+        onChange={handleChange}
+        tooltip="The IOPS to provision for the EBS volume. Only applicable for io1, io2, or gp3 volume types."
+      />
+      
+      <InputWithTooltip 
+        name="awsRootVolumeKmsKey" 
+        placeholder="Root Volume KMS Key (optional)" 
+        value={form.awsRootVolumeKmsKey} 
+        onChange={handleChange}
+        tooltip="The AWS KMS key ID or ARN to use for EBS encryption. If not specified, the default KMS key is used."
+      />
+    </>
+  );
+
+  const renderAwsNetworkConfigStep = () => (
+    <>
+      <InputWithTooltip 
+        name="awsSubnetId" 
+        placeholder="Subnet ID (required). Example: subnet-1234567890abcdef0" 
+        value={form.awsSubnetId} 
+        onChange={handleChange}
+        tooltip="The AWS subnet ID where worker nodes will be created. This subnet must have proper connectivity to the control plane."
+      />
+      
+      <InputWithTooltip 
+        name="awsSecurityGroupId" 
+        placeholder="Security Group ID (required). Example: sg-1234567890abcdef0" 
+        value={form.awsSecurityGroupId} 
+        onChange={handleChange}
+        tooltip="The AWS security group ID to apply to worker nodes. This security group must allow the necessary traffic for OpenShift to operate."
+      />
+    </>
+  );
+
   // Render current step content
   const renderStepContent = () => {
     if (step === 0) {
@@ -675,6 +831,21 @@ export default function HcpCliAssistant() {
           return (
             <div className="p-4 bg-yellow-100 border border-yellow-400 rounded">
               <p>Unknown step for the OpenStack platform. Please go back and try again.</p>
+            </div>
+          );
+      }
+    } else if (form.platform === "aws") {
+      const platformStep = step - 2; // Adjust for common steps
+      
+      switch (platformStep) {
+        case 0: return renderAwsNodeConfigStep();
+        case 1: return renderAwsStorageConfigStep();
+        case 2: return renderAwsNetworkConfigStep();
+        case 3: return renderCommandReviewStep();
+        default:
+          return (
+            <div className="p-4 bg-yellow-100 border border-yellow-400 rounded">
+              <p>Unknown step for the AWS platform. Please go back and try again.</p>
             </div>
           );
       }
